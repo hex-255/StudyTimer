@@ -42,7 +42,8 @@ https://github.com/user-attachments/assets/908df6ff-bbb2-4c02-8521-da9ff1535ad5
 
 https://github.com/user-attachments/assets/ddf5db10-52c2-463e-b771-fee3bef68919
 
-
+### Button Down: toggle Debug Mode on or off
+- device counts much quicker in debug mode
 
 ### Status LEDs and slide switches
 - left LED: Power -> green: on; orange: low battery;
