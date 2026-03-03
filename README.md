@@ -37,7 +37,11 @@ https://github.com/user-attachments/assets/7b64e9f7-16fe-4978-8f38-6b15f6c3b560
 - animation shows selection
 - last pixel of interval blinks during study period in fixed mode
 
-https://github.com/user-attachments/assets/908df6ff-bbb2-4c02-8521-da9ff1535ad5
+
+https://github.com/user-attachments/assets/2e6db207-5c3a-48b9-bd2f-25875b27d2fb
+
+
+
 
 ### Button Right: Brightness
 - left and right increases or decreases brightness
