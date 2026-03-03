@@ -1,10 +1,13 @@
 # StudyTimer
 study timer with neopixel feedback and adaptive break time calculation
+study for amount of time you decide and get break time allotted accordingly. 
+
+break time = time studied divided by 5
 
 formfactor inspired by [Adafruit NeoPixel rotary fidget](https://learn.adafruit.com/neopixel-rotary-fidget/overview) 
 
 ## Features
-- Neopixel visual feedback
+- Neopixel visual feedback (one pixel equals 2.5 minutes of study time or 1 minute of breaktime)
 - Adaptive break time calculation
 - Audio feedback with mini speaker
 - interface through [Adafruit ANO Rotary Encoder](https://learn.adafruit.com/ano-rotary-encoder)
@@ -28,9 +31,11 @@ https://github.com/user-attachments/assets/a1adc233-345f-403a-b1bf-03c040c178a4
 - changes mode between infinite and fixed interval
 - infinite mode animation
 
-https://github.com/user-attachments/assets/b2fcc57e-6349-4ebd-9561-12af53407451
+https://github.com/user-attachments/assets/7b64e9f7-16fe-4978-8f38-6b15f6c3b560
 
 - fixed interval select between 25 or 50 minutes
+- animation shows selection
+- last pixel of interval blinks during study period in fixed mode
 
 https://github.com/user-attachments/assets/908df6ff-bbb2-4c02-8521-da9ff1535ad5
 
@@ -40,7 +45,8 @@ https://github.com/user-attachments/assets/908df6ff-bbb2-4c02-8521-da9ff1535ad5
 - up arrow toggles status LED on or off
 
 
-https://github.com/user-attachments/assets/ddf5db10-52c2-463e-b771-fee3bef68919
+https://github.com/user-attachments/assets/31a64ca0-6e88-40d8-a793-a3a0c24d96c2
+
 
 ### Button Down: toggle Debug Mode on or off
 - device counts much quicker in debug mode
