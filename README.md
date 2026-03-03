@@ -1,5 +1,6 @@
 # StudyTimer
 study timer with neopixel feedback and adaptive break time calculation
+
 study for amount of time you decide and get break time allotted accordingly. 
 
 break time = time studied divided by 5
