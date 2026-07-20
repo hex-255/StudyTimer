@@ -1,6 +1,8 @@
 // StudyMode.h file
 
 #include "defines.h"
+#include "BreakOverflow.h"
+#include "Menu.h"
 
 void Study_Startup_Animation();
 
@@ -50,7 +52,12 @@ void handleStudyMode(void) {
             currentState = STATE_MAIN_MENU;
             study_started = false;
             magnet_loss_started = false;  // Reset for next time
-            strict_mode = false;  // Reset strict mode
+            strict_mode = false;  // Reset strict mode 
+            study_counter = 0; // Reset study counter 
+            num_leds_lit = 0; // Reset lit LEDs
+            streak_enabled = false; // Reset streak enabled
+            streak_counter = 0; // Reset streak counter
+            controlPCF8574_LEDs(0b11111111); // turn off all streak LEDs
             return;
         }
         
@@ -95,6 +102,12 @@ void handleStudyMode(void) {
 
     // in fixed mode exit if index is reached 
     if((check_FixedStudy && study_counter == (FixedStudy_Index+1))){
+        // play sound if audio enabled to notify user that break starts 
+        if(audio_enabled){
+            sound_debug(1000, 200, 80);
+            delay(50);
+            sound_debug(3000, 100, 250);
+        }
         if (Study_Mode_debug) {
             Serial.println("break triggered by FixedStudy_Index");
         }

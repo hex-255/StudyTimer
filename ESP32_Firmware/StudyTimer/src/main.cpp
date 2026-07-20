@@ -1,12 +1,12 @@
 // main.cpp file
 
 #include "Menu.h"
-#include "StudyMode.h"
+#include "StudyMode.h" 
 #include "defines.h"
 #include "BreakMode.h"
 #include "Config_Menus.h"
 #include "StartUp.h"
-//#include "BreakOverflow.h" -> BreakMode includes this already
+#include "BreakOverflow.h"
 #include "FuelGauge.h"
 
 #include "driver/rtc_io.h"
@@ -35,7 +35,7 @@ bool Config_Menus_debug = true;
 bool Startup_debug = true;
 bool Magnet_debug = false;
 bool FuelGauge_debug = true;
-bool I2C_debug = false;
+bool I2C_debug = true;
 bool NVM_debug = true;
 
 bool strict_mode = false;
@@ -98,6 +98,22 @@ const CRGB colorOptions[] = {
     CRGB::Magenta
 };
 
+const char* colorOptions_strings[] = {
+    "Red",
+    "Orange",
+    "Aqua",
+    "Gold",
+    "Purple",
+    "Teal",
+    "Ivory",
+    "Yellow",
+    "Cyan",
+    "Maroon",
+    "Blue",
+    "Sienna",
+    "Magenta"
+};
+
 
 
 const int numColors = sizeof(colorOptions) / sizeof(colorOptions[0]);
@@ -141,6 +157,7 @@ void setup() {
     pinMode(D6, OUTPUT); // Load Switch output pin 
     pinMode(D0, INPUT);  // ohne PULLUP kein Sleep 
     pinMode(D10, OUTPUT); // Audio Signal 
+    pinMode(D9, INPUT_PULLUP);  // D9 on Xiao (GPIO8) - for magnet detection
 
     digitalWrite(D6, HIGH); // Ensure load switch is on
     //digitalWrite(D6, LOW); // Ensure load switch is off
@@ -174,23 +191,9 @@ void setup() {
 
     if(initFuelGauge()){
         setFuelGaugeCapacity(1100);  // Set your battery capacity in mAh
-        setTerminateVoltage(3700);  // Set your battery's cutoff voltage in mV
+        setTerminateVoltage(3200);  // Set your battery's cutoff voltage in mV
         FuelGauge_available = true;
     }
-    
-
-    // sleep setup 
-    // oh shit next line says pulldown -> expected pull up
-    //rtc_gpio_pulldown_en(WAKEUP_GPIO); // this line does not work -> enabling pull-up does not do anything
-    //rtc_gpio_pullup_en(WAKEUP_GPIO); //hilft auch nicht 
-    
-
-    /* // Configure PWM channel & attach pin
-    ledcSetup(TONE_CHANNEL, TONE_FREQ, TONE_RES);
-    ledcAttachPin(TONE_PIN, TONE_CHANNEL);
-
-    // Ensure it's silent at start
-    ledcWrite(TONE_CHANNEL, 0); */
 
 }
 
@@ -296,18 +299,20 @@ void handleStatusLEDs() {
     }
 
     if(enable_status_LED){
-        int SoC = getFuelGaugeSOC();
-        if(SoC > 60){
-            CRGB battery_color = CRGB::Green;
-            status_leds[0] = battery_color;
-        }
-        else if(SoC <= 60 && SoC > 20){
-            CRGB battery_color = CRGB::Orange;
-            status_leds[0] = battery_color;
-        }
-        else{
-            CRGB battery_color = CRGB::Red;
-            status_leds[0] = battery_color;
+        if(FuelGauge_available){
+            int SoC = getFuelGaugeSOC();
+            if(SoC > 60){
+                CRGB battery_color = CRGB::Green;
+                status_leds[0] = battery_color;
+            }
+            else if(SoC <= 60 && SoC > 20){
+                CRGB battery_color = CRGB::Orange;
+                status_leds[0] = battery_color;
+            }
+            else{
+                CRGB battery_color = CRGB::Red;
+                status_leds[0] = battery_color;
+            }
         }
     } 
     else {
@@ -322,7 +327,7 @@ void readPCA9536(void) {
     // Set IO0 as input
     Wire.beginTransmission(0x41);
     Wire.write(0x03); // Configuration register
-    Wire.write(0x01); // Set bit 0 to 1 (input), others to 0 (output)
+    Wire.write(0x0F); // Set all bits to 1 (all inputs)
     Wire.endTransmission();
 
     // Read input port

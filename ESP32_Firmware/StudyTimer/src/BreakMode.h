@@ -1,8 +1,8 @@
 // BreakMode.h file
 
 #include "defines.h"
-
 #include "BreakOverflow.h"
+#include "Menu.h"
 
 void Break_Startup_Animation();
 
@@ -36,6 +36,13 @@ void handleBreakMode(void) {
 
     // If countdown complete, exit
     if (current_led_index < 0) {
+        // play sound if audio enabled
+        if(audio_enabled){
+            sound_debug(1000, 200, 80);
+            delay(50);
+            sound_debug(3000, 100, 250);
+        }
+        // if streak enabled go to break overflow, else go to main menu
         if(streak_enabled){
             if(Break_Mode_debug) {
             Serial.println("Break complete - going to break overflow");

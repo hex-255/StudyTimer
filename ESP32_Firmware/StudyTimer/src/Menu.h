@@ -1,11 +1,13 @@
 // Menu.h file
 
+#pragma once
+
 #include "defines.h"
 #include "FuelGauge.h"
 
 void debug_animation_lightup();
 
-void sound_debug(int frequency = 1000, unsigned long durationMs = 300);
+void sound_debug(int frequency = 1000, unsigned long durationMs = 300, int loudness = 200);
 
 void buttonImpactAnimation(int center);
 
@@ -53,7 +55,7 @@ void handleMainMenu(void) {
     // Update pixel position if encoder moved
     if (position != last_position) {
         if(Main_Menu_debug) {
-            Serial.print("Encoder position: "); Serial.println(position % NUM_LEDS);
+            Serial.print("Encoder position: "); Serial.println(current_led_index);
         }
         // Turn off previous pixel
         leds[last_led_index] = CRGB::Black;
@@ -90,12 +92,15 @@ void handleMainMenu(void) {
 
     // UP button: cycle color (buttons[1] = UP_BUTTON)
     if (ss.digitalRead(UP_BUTTON) == LOW) {
-        if(Main_Menu_debug) {
-            Serial.println("UP button pressed - cycling color");
-        }
+
         delay(200);  // Debounce
         currentColorIndex = (currentColorIndex + 1) % numColors;
         
+        if(Main_Menu_debug) {
+            Serial.println("UP button pressed - cycling color");
+            Serial.print("Current color: "); Serial.println(colorOptions_strings[currentColorIndex]);
+        }
+
         // Reset encoder offset and position
         encoder_offset = ss.getEncoderPosition();
         last_position = 0;
@@ -127,9 +132,9 @@ void handleMainMenu(void) {
         debug_animation_lightup();
 
         if(audio_enabled){  
-            sound_debug(1000, 50);
+            sound_debug(1000, 200, 80);
             delay(50);
-            sound_debug(1000, 50);
+            sound_debug(3000, 100, 250);
         }
 
         if(FuelGauge_debug) {
@@ -223,7 +228,7 @@ void debug_animation_lightup(){
     FastLED.show();
 }
 
-void sound_debug(int frequency, unsigned long durationMs) {
+void sound_debug(int frequency, unsigned long durationMs, int loudness) {
     if (Main_Menu_debug) {
         Serial.print("Playing debug tone: ");
         Serial.print(frequency);
@@ -231,6 +236,7 @@ void sound_debug(int frequency, unsigned long durationMs) {
     }
 
     ledcWriteTone(TONE_CHANNEL, frequency);
+    ledcWrite(TONE_CHANNEL, loudness);
     delay(durationMs);
     ledcWriteTone(TONE_CHANNEL, 0);
 }
@@ -287,19 +293,21 @@ void updateStatusArrayNoShow() {
     if (enable_status_LED) {
         // audio status LED at index 2: orange if enabled, blue if disabled
         status_leds[2] = audio_enabled ? CRGB::Orange : CRGB::Blue;
+        if(FuelGauge_available){
         // battery status LED at index 0: green if >60%, orange if 20-60%, red if <20%
-        int SoC = getFuelGaugeSOC();
-        if(SoC > 60){
-            CRGB battery_color = CRGB::Green;
-            status_leds[0] = battery_color;
-        }
-        else if(SoC <= 60 && SoC > 20){
-            CRGB battery_color = CRGB::Orange;
-            status_leds[0] = battery_color;
-        }
-        else{
-            CRGB battery_color = CRGB::Red;
-            status_leds[0] = battery_color;
+            int SoC = getFuelGaugeSOC();
+            if(SoC > 60){
+                CRGB battery_color = CRGB::Green;
+                status_leds[0] = battery_color;
+            }
+            else if(SoC <= 60 && SoC > 20){
+                CRGB battery_color = CRGB::Orange;
+                status_leds[0] = battery_color;
+            }
+            else{
+                CRGB battery_color = CRGB::Red;
+                status_leds[0] = battery_color;
+            }
         }
     } else {
         status_leds[0] = CRGB::Black;
@@ -319,10 +327,24 @@ void scanI2CDevices(void) {
         byte error = Wire.endTransmission();
         
         if (error == 0) {
-            Serial.print("Device found at address 0x");
-            if (address < 16) Serial.print("0");
-            Serial.print(address, HEX);
-            Serial.println(" !");
+            if(address == 0x38){
+                Serial.println("PCF8574 detected at 0x38");
+            }
+            else if(address == 0x41){
+                Serial.println("PCA9536 detected at 0x41");
+            }
+            else if(address == 0x49){
+                Serial.println("Attiny detected at 0x49");
+            }
+            else if(address == 0x55){
+                Serial.println("Fuel Gauge detected at 0x55");
+            }
+            else{
+                Serial.print("Unknown Device found at address 0x");
+                if (address < 16) Serial.print("0");
+                Serial.print(address, HEX);
+                Serial.println(" !");
+            }
             deviceCount++;
         }
     }

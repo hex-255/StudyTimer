@@ -1,6 +1,9 @@
 // BreakOverflow.h file
 
+#pragma once
+
 #include "defines.h"
+#include "menu.h"
 
 void moving_ring_animation();
 void controlPCF8574_LEDs(uint8_t ledMask);
@@ -102,28 +105,23 @@ void handleBreak_Overflow(){
         }
     }
 
-        // Check if 5 blocks reached: animate moving LEDs
-    if (break_interval >= 5) {
-        if (Break_Mode_debug) {
+    // Check if 5 blocks reached or aborted -> animate moving LEDs
+    if (break_interval >= 5 or (right_click or left_click)) {
+        // play sound if audio enabled to notify user that break overflow complete
+        if (audio_enabled) {
+            sound_debug(3000, 100, 150);
+            delay(30);
+            sound_debug(2000, 100, 150);
+            delay(50);
+            sound_debug(1000, 150, 150);
+            delay(100);
+            sound_debug(500, 300, 150);
+            delay(200);
+        }
+        if (Break_Mode_debug && break_interval >= 5) {
             Serial.println("Break Overflow complete (5 blocks) - moving LED animation");
         }
-
-        moving_ring_animation();
-
-        FastLED.clear();
-        FastLED.show();
-
-        streak_counter = 0; // Reset streak counter on break overflow
-
-        controlPCF8574_LEDs(0b11111111); // turn off all streak LEDs
-
-        currentState = STATE_MAIN_MENU;
-        break_started = false;  // Reset for next entry
-        return;
-    }
-
-    if(right_click or left_click){
-        if (Break_Mode_debug) {
+        else if (Break_Mode_debug && (right_click or left_click)) {
             Serial.println("Break Overflow aborted -> to Main Menu");
         }
 

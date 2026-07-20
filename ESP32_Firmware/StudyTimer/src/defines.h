@@ -140,6 +140,7 @@ const int DOWN_BUTTON = 4;
 
 // Color options (excluding white and green)
 extern const CRGB colorOptions[];
+extern const char* colorOptions_strings[];
 extern const int numColors;
 extern int currentColorIndex;  // Track which color is active
 
